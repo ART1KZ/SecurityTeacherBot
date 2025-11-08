@@ -1,6 +1,7 @@
-import {bot} from './bot/index.js';
+import './bot/handlers.js';    
+import './bot/admin/index.js';  
+import './bot/user/index.js';  
+import { bot } from './bot/bot.js';
 
-bot.start()
-console.log("Bot started")
-
-export {bot}
+bot.start();
+console.log('🤖 Бот запущен');
