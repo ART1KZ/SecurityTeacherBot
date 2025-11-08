@@ -137,4 +137,10 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# .gitignore
+temp/*.ogg
+temp/*.oga
+!temp/.gitkeep
 .env
+node_modules/
