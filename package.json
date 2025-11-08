@@ -18,5 +18,6 @@
     "grammy": "^1.38.3",
     "pdfjs-dist": "^5.4.394",
     "transliteration": "^2.3.5"
+    "supabase": "^2.54.11"
   }
 }
