@@ -39,10 +39,10 @@ bot.callbackQuery('test', async (ctx) => {
     await ctx.editMessageText('Вопрос №1: ' + question.title + '\n\n\n' + question.answers.join(`\n\n`), {
         reply_markup: {
             inline_keyboard: [
-                [{text: '1', callback_data: 'answer0'}],
-                [{text: '2', callback_data: 'answer1'}],
-                [{text: '3', callback_data: 'answer2'}],
-                [{text: '4', callback_data: 'answer3'}],
+                [{text: '1️⃣', callback_data: 'answer0'}],
+                [{text: '2️⃣', callback_data: 'answer1'}],
+                [{text: '3️⃣', callback_data: 'answer2'}],
+                [{text: '4️⃣', callback_data: 'answer3'}],
             ], 
         },
         parse_mode: 'HTML'
@@ -81,10 +81,10 @@ bot.callbackQuery(/answer[0-9]/gi, async ctx => {
         await ctx.editMessageText('Правильно!\nВопрос №' + ctx.session.questions.length + ': ' + newQuestion.title + '\n\n\n' + newQuestion.answers.join(`\n\n`), {
             reply_markup: {
                 inline_keyboard: [
-                    [{text: "1", callback_data: 'answer0'}],
-                    [{text: "2", callback_data: 'answer1'}],
-                    [{text: "3", callback_data: 'answer2'}],
-                    [{text: "4", callback_data: 'answer3'}],
+                    [{text: "1️⃣", callback_data: 'answer0'}],
+                    [{text: "2️⃣", callback_data: 'answer1'}],
+                    [{text: "3️⃣", callback_data: 'answer2'}],
+                    [{text: "4️⃣", callback_data: 'answer3'}],
                 ]
             }
         });
@@ -107,10 +107,10 @@ bot.callbackQuery(/answer[0-9]/gi, async ctx => {
         await ctx.editMessageText('Неправильно!\nВопрос №' + ctx.session.questions.length + ': ' + newQuestion.title + '\n\n\n' + newQuestion.answers.join(`\n\n`), {
             reply_markup: {
                 inline_keyboard: [
-                    [{text: "1", callback_data: 'answer0'}],
-                    [{text: "2", callback_data: 'answer1'}],
-                    [{text: "3", callback_data: 'answer2'}],
-                    [{text: "4", callback_data: 'answer3'}],
+                    [{text: "1️⃣", callback_data: 'answer0'}],
+                    [{text: "2️⃣", callback_data: 'answer1'}],
+                    [{text: "3️⃣", callback_data: 'answer2'}],
+                    [{text: "4️⃣", callback_data: 'answer3'}],
                 ]
             },
             parse_mode: 'HTML'
