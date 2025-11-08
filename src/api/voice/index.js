@@ -1,78 +1,94 @@
 import { AssemblyAI } from 'assemblyai';
-import dotenv from 'dotenv';
+import fs from 'fs'; // fs - предоставляет API для взаимодействия с файловой системой
+import path from 'path'; // path - предоставляет утилиты для работы с путями к файлам и каталогам
+import { fileURLToPath } from 'url'; // декодирует URL-адрес файла в строку пути
 
-// Загружаем переменные окружения
-dotenv.config();
+// Настройка путей
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const PROJECT_ROOT = path.resolve(__dirname, '../../..');
+const TEMP_DIR = path.join(PROJECT_ROOT, 'temp');
 
-// Проверка API ключа
-if (!process.env.ASSEMBLYAI_API_KEY) {
-  throw new Error('❌ ASSEMBLYAI_API_KEY не найден в .env файле!');
+// Автоматическое создание папки temp/ при первом запуске
+if (!fs.existsSync(TEMP_DIR)) {
+  fs.mkdirSync(TEMP_DIR, { recursive: true });
 }
 
-// Инициализация клиента
+// Инициализация клиента AssemblyAI
 const client = new AssemblyAI({
   apiKey: process.env.ASSEMBLYAI_API_KEY
 });
 
 /**
- * Конвертирует голосовое сообщение (OGG) в текст
- * @param {string} audioFilePath - Путь к OGG файлу
- * @returns {Promise<string>} Распознанный текст
+ * Скачивает голосовое сообщение из Telegram во временную папку
  */
-export async function voiceToText(audioFilePath) {
-  try {
-    // Отправляем файл на транскрипцию
-    const transcript = await client.transcripts.transcribe({
-      audio: audioFilePath,
-      language_code: 'ru',
-      punctuate: true,
-      format_text: true
-    });
-    
-    // Проверяем статус
-    if (transcript.status === 'error') {
-      throw new Error(`Транскрипция ошибка: ${transcript.error}`);
-    }
-    
-    // Проверка что текст не пустой
-    if (!transcript.text || transcript.text.trim() === '') {
-      throw new Error('Не удалось распознать речь в аудио');
-    }
-    
-    return transcript.text;
-    
-  } catch (error) {
-    console.error('AssemblyAI error:', error);
-    throw new Error(`Ошибка распознавания речи: ${error.message}`);
+async function downloadVoiceToTemp(voiceFile, bot) {
+  // Получаем информацию о файле через Telegram Bot API
+  const file = await bot.api.getFile(voiceFile.file_id);
+  
+  // Формируем уникальное имя файла с временной меткой
+  const fileName = `voice_${Date.now()}_${voiceFile.file_id}.ogg`;
+  const filePath = path.join(TEMP_DIR, fileName);
+  
+  // Скачиваем файл с серверов Telegram
+  const fileUrl = `https://api.telegram.org/file/bot${bot.token}/${file.file_path}`;
+  const response = await fetch(fileUrl);
+  const buffer = await response.arrayBuffer();
+  
+  // Сохраняем в temp/
+  fs.writeFileSync(filePath, Buffer.from(buffer));
+  
+  return filePath;
+}
+
+/**
+ * Распознаёт речь из аудио файла через AssemblyAI
+ */
+async function voiceToText(audioFilePath) {
+  // Отправляем файл в AssemblyAI для транскрипции
+  const transcript = await client.transcripts.transcribe({
+    audio: audioFilePath,
+    language_code: 'ru',
+    punctuate: true,
+    format_text: true
+  });
+  
+  // Проверяем статус транскрипции
+  if (transcript.status === 'error') {
+    throw new Error(`Ошибка AssemblyAI: ${transcript.error}`);
+  }
+  
+  return transcript.text;
+}
+
+/**
+ * Удаляет временный файл после обработки
+ */
+function deleteFile(filePath) {
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
   }
 }
 
 /**
- * Конвертирует голосовое сообщение с дополнительными опциями
- * @param {string} audioFilePath - Путь к OGG файлу
- * @param {Object} options - Дополнительные настройки
- * @returns {Promise<Object>} Объект с текстом и метаданными
+ * Обработка голосового сообщения
  */
-export async function voiceToTextAdvanced(audioFilePath, options = {}) {
+export async function processVoiceMessage(voiceFile, bot) {
+  let tempFilePath;
+  
   try {
-    const transcript = await client.transcripts.transcribe({
-      audio: audioFilePath,
-      language_code: options.language || 'ru',
-      punctuate: true,
-      format_text: true,
-      speaker_labels: options.speakerLabels || false,
-      filter_profanity: options.filterProfanity || false
-    });
+    // Скачиваем голосовое сообщение
+    tempFilePath = await downloadVoiceToTemp(voiceFile, bot);
     
-    return {
-      text: transcript.text,
-      confidence: transcript.confidence,
-      duration: transcript.audio_duration,
-      words: transcript.words
-    };
+    // Распознаём речь
+    const transcribedText = await voiceToText(tempFilePath);
     
-  } catch (error) {
-    console.error('AssemblyAI error:', error);
-    throw error;
+    return transcribedText;
+    
+  } finally {
+    // Всегда удаляем временный файл (даже если была ошибка)
+    if (tempFilePath) {
+      deleteFile(tempFilePath);
+    }
   }
 }

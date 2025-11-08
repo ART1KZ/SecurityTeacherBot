@@ -139,8 +139,6 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 # .gitignore
-temp/*.ogg
-temp/*.oga
-!temp/.gitkeep
+temp/
 .env
 node_modules/
