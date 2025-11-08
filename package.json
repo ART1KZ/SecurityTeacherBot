@@ -10,6 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "grammy": "^1.38.3"
+    "@extensionengine/rtf-parser": "^1.0.1",
+    "@supabase/supabase-js": "^2.80.0",
+    "grammy": "^1.38.3",
+    "pdfjs-dist": "^5.4.394"
   }
 }
