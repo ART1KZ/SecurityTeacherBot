@@ -14,10 +14,11 @@
     "@grammyjs/files": "^1.2.0",
     "@mistralai/mistralai": "^1.10.0",
     "@supabase/supabase-js": "^2.80.0",
+    "assemblyai": "^4.19.0",
     "dotenv": "^17.2.3",
     "grammy": "^1.38.3",
     "pdfjs-dist": "^5.4.394",
-    "transliteration": "^2.3.5"
+    "transliteration": "^2.3.5",
     "supabase": "^2.54.11"
   }
 }
