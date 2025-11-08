@@ -1,7 +1,4 @@
-import {Bot, session} from 'grammy';
-require('dotenv').config()
-
-const bot = new Bot(process.env.BOT_TOKEN);
+import {bot} from './bot/index.js';
 
 bot.start()
 console.log("Bot started")
