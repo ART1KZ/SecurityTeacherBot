@@ -38,25 +38,9 @@ async function extractRtfText(filePath) {
   return lines.join('\n').trim();
 }
 
-async function extractText(filePath) {
+export async function extractText(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   if (ext === '.pdf') return extractPdfText(filePath);
   if (ext === '.rtf') return extractRtfText(filePath);
   throw new Error(`Unsupported file format: ${ext}. Supported: .pdf, .rtf`);
 }
-
-async function main() {
-  const [, , inputArg] = process.argv;
-  if (!inputArg) {
-    console.error('Usage: node src/doc/parser.js <path-to-pdf-or-rtf>');
-    process.exit(1);
-  }
-  const inputPath = path.resolve(inputArg);
-  const text = await extractText(inputPath);
-  console.log(text);
-}
-
-main().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
