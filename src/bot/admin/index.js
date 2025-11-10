@@ -141,69 +141,74 @@ function escapeMarkdown(text) {
  * - Разбивает текст по абзацам (двойной перевод строки)
  * - Если абзац длинный, разбивает по предложениям с сохранением контекста (overlap)
  * - Учитывает сохранение логических блоков для избежания разрывов в середине предложений/пунктов
- * 
+ *
  * @param {string} text - Исходный текст документа
  * @param {number} maxSize - Максимальный размер чанка в символах
  * @param {number} overlap - Кол-во символов перекрытия между чанками для лучшего контекста
  * @returns {string[]} - массив чанков
  */
 function chunkText(text, maxSize = 1500, overlap = 200) {
-  const chunks = [];
-  const paragraphs = text.split(/\n\s*\n/); // Разбиваем на абзацы
+    const chunks = [];
+    const paragraphs = text.split(/\n\s*\n/); // Разбиваем на абзацы
 
-  let currentChunk = '';
+    let currentChunk = "";
 
-  for (const paragraph of paragraphs) {
-    const trimmed = paragraph.trim();
-    if (!trimmed) continue;
+    for (const paragraph of paragraphs) {
+        const trimmed = paragraph.trim();
+        if (!trimmed) continue;
 
-    // Если абзац больше maxSize - разбиваем на предложения
-    if (trimmed.length > maxSize) {
-      // Сначала добавляем текущий накопленный чанк, если он не пуст
-      if (currentChunk) {
-        chunks.push(currentChunk.trim());
-        currentChunk = '';
-      }
-      // Разбиваем абзац на предложения
-      const sentences = trimmed.match(/[^.!?]+[.!?]+(\s|$)/g) || [trimmed];
-      for (const sentence of sentences) {
-        if ((currentChunk + sentence).length > maxSize) {
-          if (currentChunk) {
-            chunks.push(currentChunk.trim());
-            // overlap - берем последние слова для контекста
-            const overlapWords = currentChunk.split(' ').slice(-Math.floor(overlap / 5));
-            currentChunk = overlapWords.join(' ') + ' ' + sentence;
-          } else {
-            currentChunk = sentence;
-          }
+        // Если абзац больше maxSize - разбиваем на предложения
+        if (trimmed.length > maxSize) {
+            // Сначала добавляем текущий накопленный чанк, если он не пуст
+            if (currentChunk) {
+                chunks.push(currentChunk.trim());
+                currentChunk = "";
+            }
+            // Разбиваем абзац на предложения
+            const sentences = trimmed.match(/[^.!?]+[.!?]+(\s|$)/g) || [
+                trimmed,
+            ];
+            for (const sentence of sentences) {
+                if ((currentChunk + sentence).length > maxSize) {
+                    if (currentChunk) {
+                        chunks.push(currentChunk.trim());
+                        // overlap - берем последние слова для контекста
+                        const overlapWords = currentChunk
+                            .split(" ")
+                            .slice(-Math.floor(overlap / 5));
+                        currentChunk = overlapWords.join(" ") + " " + sentence;
+                    } else {
+                        currentChunk = sentence;
+                    }
+                } else {
+                    currentChunk += " " + sentence;
+                }
+            }
         } else {
-          currentChunk += ' ' + sentence;
+            // Если добавление абзаца к текущему чанку превышает maxSize, создаем новый чанк
+            if ((currentChunk + "\n\n" + trimmed).length > maxSize) {
+                if (currentChunk) {
+                    chunks.push(currentChunk.trim());
+                    // overlap
+                    const overlapWords = currentChunk
+                        .split(" ")
+                        .slice(-Math.floor(overlap / 5));
+                    currentChunk = overlapWords.join(" ") + "\n\n" + trimmed;
+                } else {
+                    currentChunk = trimmed;
+                }
+            } else {
+                currentChunk += (currentChunk ? "\n\n" : "") + trimmed;
+            }
         }
-      }
-    } else {
-      // Если добавление абзаца к текущему чанку превышает maxSize, создаем новый чанк
-      if ((currentChunk + '\n\n' + trimmed).length > maxSize) {
-        if (currentChunk) {
-          chunks.push(currentChunk.trim());
-          // overlap
-          const overlapWords = currentChunk.split(' ').slice(-Math.floor(overlap / 5));
-          currentChunk = overlapWords.join(' ') + '\n\n' + trimmed;
-        } else {
-          currentChunk = trimmed;
-        }
-      } else {
-        currentChunk += (currentChunk ? '\n\n' : '') + trimmed;
-      }
     }
-  }
 
-  if (currentChunk.trim()) {
-    chunks.push(currentChunk.trim());
-  }
+    if (currentChunk.trim()) {
+        chunks.push(currentChunk.trim());
+    }
 
-  return chunks;
+    return chunks;
 }
-
 
 // ═══════════════════════════════════════════════════════════════
 // 📦 РАБОТА С SUPABASE STORAGE

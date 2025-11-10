@@ -1,19 +1,19 @@
 /**
  * 🤖 ИНИЦИАЛИЗАЦИЯ БОТА
- * 
+ *
  * Создаёт экземпляр бота и подключает все необходимые сервисы:
  * - Grammy для работы с Telegram API
  * - Supabase для базы данных и хранилища файлов
  * - Mistral AI для эмбеддингов и поиска
  * - Session middleware для хранения состояния пользователя
- * 
+ *
  * Экспортирует общие объекты для использования в модулях user/admin.
  */
 
-import { Bot, session } from 'grammy';
-import { hydrateFiles } from '@grammyjs/files';
-import { createClient } from '@supabase/supabase-js';
-import { Mistral } from '@mistralai/mistralai';
+import { Bot, session } from "grammy";
+import { hydrateFiles } from "@grammyjs/files";
+import { createClient } from "@supabase/supabase-js";
+import { Mistral } from "@mistralai/mistralai";
 
 // Создаём экземпляр бота с токеном из .env
 const bot = new Bot(process.env.BOT_TOKEN);
@@ -23,8 +23,8 @@ bot.api.config.use(hydrateFiles(bot.token));
 
 // Инициализируем Supabase-клиент для работы с БД и Storage
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY // SERVICE_ROLE key для полного доступа
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_KEY // SERVICE_ROLE key для полного доступа
 );
 
 // Инициализируем Mistral AI для генерации эмбеддингов
@@ -35,15 +35,15 @@ const mistral = new Mistral({ apiKey: process.env.MISTRAL_API_KEY });
  * Хранит текущую команду, прогресс теста и состояние админки.
  */
 function initialSessionData() {
-  return {
-    command: null,           // Текущая активная команда ('search', 'test', 'admin')
-    questions: [],           // ID вопросов теста
-    correctAnswers: [],      // ID правильных ответов
-    isAdmin: false,          // Флаг авторизации админа
-    renamingDocId: null,     // ID документа, который сейчас переименовывается
-    adminPromptMsgId: null,  // ID сообщения с запросом пароля админки
-    renamePromptMsgId: null, // ID сообщения с запросом нового названия документа
-  };
+    return {
+        command: null, // Текущая активная команда ('search', 'test', 'admin')
+        questions: [], // ID вопросов теста
+        correctAnswers: [], // ID правильных ответов
+        isAdmin: false, // Флаг авторизации админа
+        renamingDocId: null, // ID документа, который сейчас переименовывается
+        adminPromptMsgId: null, // ID сообщения с запросом пароля админки
+        renamePromptMsgId: null, // ID сообщения с запросом нового названия документа
+    };
 }
 
 // Подключаем middleware для хранения сессий
@@ -51,7 +51,7 @@ bot.use(session({ initial: initialSessionData }));
 
 // Глобальный обработчик ошибок для предотвращения падения бота
 bot.catch((err) => {
-  console.error('❌ Ошибка в боте:', err);
+    console.error("❌ Ошибка в боте:", err);
 });
 
 export { bot, supabase, mistral };
